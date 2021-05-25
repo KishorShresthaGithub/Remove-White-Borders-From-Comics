@@ -28,7 +28,7 @@ def crop(x, dirpath):
         cropped = img[y1:y2, x1:x2]
         # adding small borders to end result
         cropped = cv2.copyMakeBorder(
-            cropped, 5, 5, 15, 15, cv2.BORDER_CONSTANT, value=[255, 255, 255])
+            cropped, 5, 5, 10, 10, cv2.BORDER_CONSTANT, value=[255, 255, 255])
         cv2.imwrite(os.path.join(dirpath, x), cropped)
 
 
@@ -55,22 +55,50 @@ def extract_zip(zip):
     temp_folder_name = str(file_name).strip() + "_temp"
     # absolute temp folder path
     temp_folder_path = os.path.abspath(os.path.join(".", temp_folder_name))
-    # extracting zio file to temp folder path
+
+    # extracting zip file to temp folder path
     with zipfile.ZipFile(zip, "r") as zip_ref:
         zip_ref.extractall(temp_folder_path)
 
     return temp_folder_path, file_name, file_extension
 
 
-def process_zip(folder):
+def process_zip(temp_folder):
     # get all files in folder
-    for file in os.listdir(folder):
-        if file.endswith(".jpg") or file.endswith(".png"):
-            crop(file, folder)
+    for dirpath, subdirs, files in os.walk(temp_folder):
+        for file in files:
+            # move images to topmost folder
+            if file.endswith(".jpg") or file.endswith(".png"):
+                image_file = os.path.join(dirpath, file)
+                # crop image
+                crop(image_file, dirpath)
+                # move to topmost folder
+                shutil.move(image_file, temp_folder)
+
+
+def removeEmptyFolders(path, removeRoot=True):
+    if not os.path.isdir(path):
+        return
+
+    # remove empty subfolders
+    files = os.listdir(path)
+    if len(files):
+        for f in files:
+            fullpath = os.path.join(path, f)
+            if os.path.isdir(fullpath):
+                removeEmptyFolders(fullpath)
+
+    # if folder empty, delete it
+    files = os.listdir(path)
+    if len(files) == 0 and removeRoot:
+        print("Removing empty folder:", path)
+        os.rmdir(path)
 
 
 def wrap_zip(folder, file, extension):
     if(os.path.exists(folder)):
+        # removing empty folders
+        removeEmptyFolders(folder)
         # creating archive
         shutil.make_archive(os.path.join(
             folder, file+"_cropped"), "zip", folder)
