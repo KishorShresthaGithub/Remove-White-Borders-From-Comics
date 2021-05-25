@@ -12,12 +12,14 @@ def crop(x, dirpath):
     if x.endswith(".png") or x.endswith(".jpg"):
         # shpfiles.append(os.path.join(dirpath, x))
         # #img = cv2.imread("test.png")
+
         img = cv2.imread(os.path.join(dirpath, x))
         blurred = cv2.blur(img, (3, 3))
         canny = cv2.Canny(blurred, 50, 200)
 
         # find the non-zero min-max coords of canny
         pts = np.argwhere(canny > 0)
+        x1, y1, x2, y2 = [0, 0, 0, 0]
         try:
             y1, x1 = pts.min(axis=0)
             y2, x2 = pts.max(axis=0)
