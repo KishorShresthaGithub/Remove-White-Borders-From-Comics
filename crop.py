@@ -44,8 +44,9 @@ def main():
                 process_zip(folder_path)
                 # wrap up zip
                 wrap_zip(folder_path, file_name, file_extension)
-                #finish
-                print(file_name)
+                # finish
+                print(file_name+" completed")
+
 
 def extract_zip(zip):
     # gettin filename of zip and extension
