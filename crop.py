@@ -75,7 +75,8 @@ def process_zip(temp_folder):
                 # crop image
                 crop(image_file, dirpath)
                 # move to topmost folder
-                shutil.move(image_file, temp_folder)
+                if not os.path.exists(os.path.join(temp_folder, image_file)):
+                    shutil.move(image_file, temp_folder)
 
 
 def removeEmptyFolders(path, removeRoot=True):
